@@ -8,8 +8,8 @@ car_logo_dataset/
 *.zip
 *.rar
 
-# Model weights (large files)
-*.pt
+# Model weights (large files) - Using Git LFS for *.pt
+# *.pt files now tracked with Git LFS
 *.onnx
 *.engine
 **/weights/
