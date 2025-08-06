@@ -1,0 +1,60 @@
+# 🚀 GitHub Repository - Car Brand Detection YOLOv11
+# Exclude large files for clean repository
+
+# Dataset files (too large for GitHub)
+car_logo_dataset/
+**/images/
+**/labels/
+*.zip
+*.rar
+
+# Model weights (large files)
+*.pt
+*.onnx
+*.engine
+**/weights/
+car_brand_detection/
+
+# Training outputs
+runs/
+**/results.csv
+**/train_batch*.jpg
+**/val_batch*.jpg
+**/confusion_matrix*.png
+**/results.png
+**/curves*.png
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+.directory
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Large output files
+car_brand_predictions/
+output/
+results/
