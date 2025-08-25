@@ -1,0 +1,1692 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logo Tanıma Sistemi — Araba Markası Belirleme</title>
+  <meta name="theme-color" content="#3b82f6">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script defer src="app.js?v=5002"></script>
+  <style>
+    :root {
+      /* Professional AI-themed Color Palette with Gradients */
+      --primary-dark: #0f172a;
+      --primary-medium: #1e293b;
+      --primary-light: #334155;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --surface-dark: #1e293b;
+      --surface-medium: #334155;
+      --surface-light: #475569;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --border-hover: #475569;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+      --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+      --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #475569 100%);
+      --gradient-card: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.25);
+      --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gradient-hero);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-size: 16px;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Animated Background Particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Enhanced Navigation */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .nav:hover {
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--text-primary);
+    }
+
+    .logo-mark {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+      }
+      50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+      }
+    }
+
+    .nav nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav a {
+      padding: 10px 18px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .nav a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-primary);
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .nav a:hover {
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .nav a:hover::before {
+      left: 0;
+    }
+
+    .icon-btn {
+      background: var(--gradient-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent-blue);
+      background: var(--gradient-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* Hero Section with Advanced Animations */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 64px;
+      max-width: 1400px;
+      margin: 80px auto;
+      padding: 0 32px;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero-content {
+      animation: slideInLeft 1s ease-out;
+    }
+
+    .hero-visual {
+      animation: slideInRight 1s ease-out 0.2s both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .hero-content h1 {
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+      line-height: 1.1;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-content h1 span {
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .lead {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    .cta {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn.primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn.primary:hover {
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn.ghost {
+      background: var(--gradient-card);
+      color: var(--text-primary);
+      border: 2px solid var(--border-hover);
+    }
+
+    .btn.ghost:hover {
+      border-color: var(--accent-blue);
+      background: var(--gradient-primary);
+      color: white;
+    }
+
+    .btn.small {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 24px 20px;
+      background: var(--gradient-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-blue);
+    }
+
+    .stat span {
+      display: block;
+      font-size: 32px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .stat small {
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-image {
+      width: 100%;
+      max-width: 450px;
+      height: 350px;
+      background: var(--gradient-primary);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 28px;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      animation: float-subtle 6s ease-in-out infinite;
+    }
+
+    .hero-image::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes float-subtle {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    @keyframes shine {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Enhanced Analyzer Section */
+    .analyzer {
+      background: var(--gradient-secondary);
+      border-top: 1px solid var(--border);
+      padding: 80px 0;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .analyzer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+
+    .panel {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .panel-header h2 {
+      font-size: 36px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .dropzone {
+      position: relative;
+      border: 3px dashed var(--border);
+      border-radius: 20px;
+      background: var(--gradient-card);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .dropzone.has-image {
+      min-height: 500px;
+    }
+
+    .dropzone:hover {
+      border-color: var(--accent-blue);
+      background: linear-gradient(145deg, #1e293b 0%, #334155 50%, #475569 100%);
+      transform: scale(1.01);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .dropzone.drag {
+      border-color: var(--accent-cyan);
+      background: linear-gradient(145deg, #0e7490 10%, #1e293b 90%);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .dz-inner {
+      text-align: center;
+      padding: 48px;
+      transition: all 0.3s ease;
+    }
+
+    .dz-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      color: var(--text-muted);
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .dz-text {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .dz-text strong {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .dz-hint {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .preview {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      animation: scan 2.5s linear infinite;
+      opacity: 0.8;
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .scanline.off {
+      display: none;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .results {
+      margin-top: 32px;
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      animation: slideInUp 0.5s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      background: var(--gradient-primary);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .result-body {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--gradient-card);
+      border: 2px solid var(--accent-emerald);
+      border-radius: 25px;
+      font-weight: 700;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-chip .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse-dot 2s infinite;
+      box-shadow: 0 0 5px var(--success);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 0.6; 
+        transform: scale(1.2);
+      }
+    }
+
+    .conf {
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 6px 12px;
+      background: var(--surface-medium);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Enhanced Features Section */
+    .features {
+      max-width: 1400px;
+      margin: 100px auto;
+      padding: 0 32px;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 40px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 60px;
+    }
+
+    .features .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+    }
+
+    .card {
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.4s ease;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-glow);
+      border-color: var(--accent-blue);
+    }
+
+    .card h3 {
+      font-size: 24px;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* Enhanced Supported Brands Section */
+    .supported-brands {
+      background: var(--gradient-secondary);
+      border-top: 2px solid var(--border);
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .supported-brands::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+
+    .supported-brands .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .supported-brands h2 {
+      text-align: center;
+      font-size: 40px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .supported-brands .subtitle {
+      text-align: center;
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 60px;
+    }
+
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .brand-item {
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-item:hover {
+      border-color: var(--accent-blue);
+      background: linear-gradient(145deg, #334155 0%, #475569 100%);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .brand-item .brand-name {
+      font-weight: 700;
+      font-size: 16px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .brand-item .brand-type {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Enhanced FAQ Section */
+    .faq {
+      max-width: 1400px;
+      margin: 100px auto;
+      padding: 0 32px;
+    }
+
+    .faq h2 {
+      text-align: center;
+      font-size: 40px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 60px;
+    }
+
+    .faq-container {
+      display: grid;
+      gap: 20px;
+    }
+
+    .faq-item {
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-blue);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 24px;
+      background: transparent;
+      border: none;
+      text-align: left;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .faq-question:hover {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      border-top: 1px solid var(--border);
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+    }
+
+    .faq-answer p {
+      padding: 24px;
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* Quick Info */
+    .quick-info {
+      margin-top: 32px;
+      padding: 28px;
+      background: var(--gradient-card);
+      border: 2px solid var(--accent-emerald);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .quick-info p {
+      margin: 10px 0;
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .quick-info strong {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    /* Enhanced Footer */
+    .footer {
+      background: var(--gradient-secondary);
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 40px;
+      margin-top: 80px;
+      border-top: 2px solid var(--border);
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+
+    /* Enhanced Settings Panel */
+    .settings {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      display: grid;
+      place-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .settings.hidden {
+      display: none;
+    }
+
+    .settings-panel {
+      width: min(90vw, 500px);
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+      animation: slideInScale 0.3s ease;
+    }
+
+    @keyframes slideInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .settings-header h3 {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    .settings-body {
+      display: grid;
+      gap: 20px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      background: var(--surface-dark);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .row span {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .row input[type="range"] {
+      flex: 1;
+      margin-left: 16px;
+    }
+
+    /* Enhanced Image Modal */
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .image-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 95vh;
+      background: var(--gradient-card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      animation: slideInScale 0.4s ease;
+    }
+
+    .modal-image-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      max-width: 90vw;
+      max-height: 85vh;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .modal-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, transparent 100%);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .modal-title {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 18px;
+    }
+
+    .modal-close:hover {
+      background: var(--gradient-primary);
+      border-color: var(--accent-blue);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .modal-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(0deg, rgba(30, 41, 59, 0.95) 0%, transparent 100%);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      z-index: 10;
+    }
+
+    .modal-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gradient-card);
+      border: 2px solid var(--accent-emerald);
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .modal-details {
+      display: flex;
+      gap: 20px;
+      font-size: 16px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .modal-detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .zoom-controls {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .zoom-btn {
+      background: var(--gradient-card);
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .zoom-btn:hover {
+      background: var(--gradient-primary);
+      border-color: var(--accent-blue);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    /* Enhanced Intro Screen */
+    #intro {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 4000;
+      background: var(--gradient-hero);
+      backdrop-filter: blur(20px);
+    }
+
+    #intro.hide {
+      animation: fadeOut 0.8s ease-in forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    .intro-inner {
+      text-align: center;
+      animation: slideInScale 1s ease-out;
+    }
+
+    .intro-inner h1 {
+      font-size: clamp(40px, 8vw, 72px);
+      font-weight: 900;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      animation: pulse-text 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-text {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .intro-sub {
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    /* Enhanced Responsive Design */
+    @media (max-width: 768px) {
+      .nav {
+        padding: 12px 16px;
+      }
+      
+      .nav nav {
+        display: none;
+      }
+      
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+        margin: 40px auto;
+        gap: 40px;
+      }
+      
+      .panel,
+      .features,
+      .faq {
+        padding: 0 20px;
+      }
+      
+      .cta {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .brands-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .features .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    :focus-visible {
+      outline: 3px solid var(--accent-blue);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Smooth transitions for all elements */
+    * {
+      transition: all 0.3s ease;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background canvas for particle effects -->
+  <canvas id="bg" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2;"></canvas>
+  <noscript>Bu site JavaScript gerektirir.</noscript>
+
+  <!-- Giriş ekranı -->
+  <div id="intro" aria-hidden="true">
+    <div class="intro-inner">
+      <h1>Logo Tanıma Sistemi</h1>
+      <p class="intro-sub">Araba markalarını hızlı ve kolay tespit edin</p>
+      <button id="skipIntro" class="btn primary">Başlayın</button>
+    </div>
+  </div>
+
+  <header class="nav">
+    <div class="brand">
+      <span class="logo-mark"></span>
+      <span class="brand-text">Logo Tanıma</span>
+    </div>
+    <nav>
+      <a href="#anasayfa">Ana Sayfa</a>
+      <a href="#analiz">Analiz</a>
+      <a href="#markalar">Desteklenen Markalar</a>
+      <a href="#sss">SSS</a>
+    </nav>
+    <button id="openSettings" class="icon-btn" aria-label="Ayarlar">⚙️</button>
+  </header>
+
+  <main>
+    <!-- Ana Bölüm -->
+    <section id="anasayfa" class="hero">
+      <div class="hero-content">
+        <h1>Araba Logosunu Yükleyin, <span>Markasını</span> Öğrenin</h1>
+        <p class="lead">
+          Gelişmiş yapay zeka teknolojisi ile araba logolarını anında tanıyoruz. 
+          Sadece fotoğraf yükleyin, markayı hemen öğrenin.
+        </p>
+        <div class="cta">
+          <a href="#analiz" class="btn primary">Hemen Deneyin</a>
+          <button id="demoBtn" class="btn ghost">Örnek Göster</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>18</span><small>Desteklenen Marka</small></div>
+          <div class="stat"><span>%100</span><small>Memnuniyet</small></div>
+          <div class="stat"><span>1sn</span><small>Hızlı Sonuç</small></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image">
+          🚗 Logo Tanıma
+        </div>
+      </div>
+    </section>
+
+    <!-- Logo Analizi -->
+    <section id="analiz" class="analyzer">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Logo Analizi</h2>
+          <div class="mini-actions">
+            <button id="clearBtn" class="btn small">Temizle</button>
+          </div>
+        </div>
+
+        <div id="dropZone" class="dropzone" tabindex="0" aria-label="Görsel bırak veya yükle">
+          <input id="fileInput" type="file" accept="image/*" aria-label="Görsel seç" style="display: none;" />
+          <div class="dz-inner" onclick="document.getElementById('fileInput').click()">
+            <div class="dz-icon">📁</div>
+            <div class="dz-text">
+              <strong>Araba Fotoğrafı Yükleyin</strong><br>
+              veya dosyayı sürükleyip bırakın
+            </div>
+            <div class="dz-hint">JPG, PNG, WEBP formatları desteklenir</div>
+          </div>
+          <!-- Önizleme alanı -->
+          <div class="preview hidden">
+            <img id="previewImg" alt="Yüklenen görsel önizlemesi">
+            <canvas id="overlay"></canvas>
+            <div class="scanline"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="analyzeBtn" class="btn primary" disabled>Markayı Bul</button>
+          <button id="viewBtn" class="btn" disabled>🔍 Tam Ekran Görüntüle</button>
+          <button id="saveBtn" class="btn" disabled>İşaretli Görseli İndir</button>
+          <button id="copyJsonBtn" class="btn ghost" disabled>Sonuçları Kopyala</button>
+        </div>
+
+        <div id="results" class="results hidden" aria-live="polite">
+          <div class="result-header">
+            <span class="badge">Sonuç</span>
+            <span id="latency" class="muted"></span>
+          </div>
+          <div class="result-body">
+            <div class="brand-chip">
+              <span class="pulse"></span>
+              <span id="brandName">—</span>
+            </div>
+            <div class="conf">
+              Güven Seviyesi: <span id="confidence">—</span>
+            </div>
+            <div class="tags" id="tags"></div>
+          </div>
+        </div>
+
+        <div class="quick-info">
+          <p>🤖 <strong>Yapay Zeka</strong> teknolojisi ile güçlendirilmiş</p>
+          <p>📊 <strong>Yüksek doğruluk</strong> oranında sonuçlar</p>
+          <p>⚡ <strong>Anında</strong> logo tespit ve marka belirleme</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Desteklenen Markalar -->
+    <section id="markalar" class="supported-brands">
+      <div class="container">
+        <h2>Desteklenen Araba Markaları</h2>
+        <p class="subtitle">Sistemimiz bu markaları tanıyabilir ve tespit edebilir</p>
+        
+        <div class="brands-grid">
+          <div class="brand-item">
+            <div class="brand-name">Audi</div>
+            <div class="brand-type">Lüks Sedan</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">BMW</div>
+            <div class="brand-type">Lüks Sedan</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Mercedes-Benz</div>
+            <div class="brand-type">Lüks Sedan</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Toyota</div>
+            <div class="brand-type">Ekonomik</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Volkswagen</div>
+            <div class="brand-type">Ekonomik</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Tesla</div>
+            <div class="brand-type">Elektrikli</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Ford</div>
+            <div class="brand-type">Amerikan</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Honda</div>
+            <div class="brand-type">Japon</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Hyundai</div>
+            <div class="brand-type">Kore</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Nissan</div>
+            <div class="brand-type">Japon</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Chevrolet</div>
+            <div class="brand-type">Amerikan</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Kia</div>
+            <div class="brand-type">Kore</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Peugeot</div>
+            <div class="brand-type">Fransız</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Renault</div>
+            <div class="brand-type">Fransız</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Opel</div>
+            <div class="brand-type">Alman</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Mazda</div>
+            <div class="brand-type">Japon</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Subaru</div>
+            <div class="brand-type">Japon</div>
+          </div>
+          <div class="brand-item">
+            <div class="brand-name">Suzuki</div>
+            <div class="brand-type">Japon</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Özellikler -->
+    <section id="ozellikler" class="features">
+      <h2>Neden Bu Sistemi Kullanmalısınız?</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Kolay Kullanım</h3>
+          <p>Sadece fotoğraf yükleyin, marka bilgisini anında alın. Teknik bilgi gerektirmez.</p>
+        </div>
+        <div class="card">
+          <h3>Hızlı Sonuç</h3>
+          <p>1 saniyeden kısa sürede araba markasını tespit eder ve sonucu gösterir.</p>
+        </div>
+        <div class="card">
+          <h3>Güvenilir Teknoloji</h3>
+          <p>Modern yapay zeka ile %90'dan yüksek doğruluk oranında sonuçlar.</p>
+        </div>
+        <div class="card">
+          <h3>Geniş Marka Desteği</h3>
+          <p>18 farklı popüler araba markasını tanıyabilir ve ayırt edebilir.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SSS -->
+    <section id="sss" class="faq">
+      <h2>Sık Sorulan Sorular</h2>
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question">🤖 Sistem gerçekten çalışıyor mu?</button>
+          <div class="faq-answer">
+            <p>Evet! Gelişmiş yapay zeka teknolojisi ile %90'dan yüksek doğrulukta araba logosu tanıma yapıyoruz. 18 farklı markayı tespit edebilir.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">📁 Hangi dosya türleri kabul ediliyor?</button>
+          <div class="faq-answer">
+            <p>JPG, PNG, WEBP formatlarındaki fotoğrafları yükleyebilirsiniz. Maksimum dosya boyutu 16MB.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">⚡ Ne kadar sürede sonuç alırım?</button>
+          <div class="faq-answer">
+            <p>Genellikle 1 saniyeden kısa sürede analiz tamamlanır ve marka bilgisi gösterilir.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">💾 Sonuçları kaydedebilir miyim?</button>
+          <div class="faq-answer">
+            <p>Evet! Analiz sonuçlarını kopyalayabilir veya işaretlenmiş görseli indirebilirsiniz.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">🔒 Fotoğraflarım güvende mi?</button>
+          <div class="faq-answer">
+            <p>Tüm işlemler güvenli bir şekilde yapılır. Fotoğraflarınız sadece analiz için kullanılır.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">📱 Hangi cihazlarda çalışır?</button>
+          <div class="faq-answer">
+            <p>Bilgisayar, tablet ve cep telefonu gibi internet bağlantısı olan tüm cihazlarda çalışır.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© <span id="year"></span> Logo Tanıma Sistemi • Tüm hakları saklıdır.</div>
+  </footer>
+
+  <!-- Ayarlar paneli -->
+  <div id="settings" class="settings hidden" role="dialog" aria-modal="true" aria-label="Ayarlar">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h3>Ayarlar</h3>
+        <button id="closeSettings" class="icon-btn" aria-label="Kapat">✖️</button>
+      </div>
+      <div class="settings-body">
+        <label class="row">
+          <span>Animasyon Hızı</span>
+          <input id="intensity" type="range" min="0" max="100" value="50">
+        <label class="row">
+          <span>Parçacık Efekti</span>
+          <input id="toggleParticles" type="checkbox" checked>
+        </label>
+        <label class="row">
+          <span>Glitch Efekti</span>
+          <input id="toggleGlitch" type="checkbox" checked>
+        </label>
+        </label>
+        <label class="row">
+          <span>Tarama Çizgisi</span>
+          <input id="toggleScanline" type="checkbox" checked>
+        </label>
+        <label class="row">
+          <span>Sesli Uyarılar</span>
+          <input id="toggleSound" type="checkbox">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tam Ekran Image Modal -->
+  <div id="imageModal" class="image-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">İşaretli Görsel</h3>
+        <button id="modalClose" class="modal-close">✖</button>
+      </div>
+      
+      <div class="modal-image-container">
+        <img id="modalImage" class="modal-image" alt="Tam ekran görsel">
+        <canvas id="modalOverlay" class="modal-overlay"></canvas>
+      </div>
+      
+      <div class="zoom-controls">
+        <button id="zoomIn" class="zoom-btn" title="Yakınlaştır">+</button>
+        <button id="zoomOut" class="zoom-btn" title="Uzaklaştır">-</button>
+        <button id="resetZoom" class="zoom-btn" title="Sıfırla">⌂</button>
+      </div>
+      
+      <div class="modal-info">
+        <div id="modalBrand" class="modal-brand">
+          <span class="pulse"></span>
+          <span id="modalBrandName">—</span>
+        </div>
+        <div class="modal-details">
+          <div class="modal-detail">
+            <span>🎯 Güven:</span>
+            <span id="modalConfidence">—</span>
+          </div>
+          <div class="modal-detail">
+            <span>⚡ Süre:</span>
+            <span id="modalLatency">—</span>
+          </div>
+          <div class="modal-detail">
+            <span>🤖 Sistem:</span>
+            <span>Logo Tanıma v5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
